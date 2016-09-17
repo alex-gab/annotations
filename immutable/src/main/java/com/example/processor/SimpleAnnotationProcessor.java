@@ -18,6 +18,7 @@ import java.util.Set;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class SimpleAnnotationProcessor extends AbstractProcessor {
     @Override
+    @SuppressWarnings("Duplicates")
     public boolean process(final Set<? extends TypeElement> annotations,
                            final RoundEnvironment roundEnv) {
 
