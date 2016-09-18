@@ -40,7 +40,7 @@ public final class FactoryAnnotatedClass {
         this.simpleFactoryGroupName = simpleFactoryGroupName;
     }
 
-    public final TypeElement getAnnotatedClassElement() {
+    public final TypeElement getTypeElement() {
         return annotatedClassElement;
     }
 

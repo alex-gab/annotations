@@ -10,6 +10,9 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 
 import static javax.lang.model.SourceVersion.latestSupported;
@@ -23,6 +26,8 @@ public final class FactoryProcessor extends AbstractProcessor {
     private Elements elementUtils;
     private Filer filer;
     private Messager messager;
+
+    private Map<String, FactoryGroupedClasses> factoryGroupedClassesMap = new LinkedHashMap<>();
 
     @Override
     public final synchronized void init(ProcessingEnvironment processingEnv) {
@@ -50,11 +55,20 @@ public final class FactoryProcessor extends AbstractProcessor {
                 checkThatOnlyClassesAreAnnotatedWithFactory(annotatedElement);
 
                 final TypeElement typeElement = (TypeElement) annotatedElement;
-                final FactoryAnnotatedClass factoryClass = new FactoryAnnotatedClass(typeElement);
-                checkValidClass(factoryClass);
+                final FactoryAnnotatedClass annotatedClass = new FactoryAnnotatedClass(typeElement);
+                checkValidClass(annotatedClass);
+
+                registerAnnotatedClass(annotatedClass);
+
+                for (FactoryGroupedClasses groupedClasses : factoryGroupedClassesMap.values()) {
+                    groupedClasses.generateCode(elementUtils, filer);
+                }
+                factoryGroupedClassesMap.clear();
             }
         } catch (ProcessingException e) {
             error(e.getElement(), e.getMessage());
+        } catch (IOException e) {
+            error(null, e.getMessage());
         }
         return true;
     }
@@ -74,7 +88,7 @@ public final class FactoryProcessor extends AbstractProcessor {
     }
 
     private void checkValidClass(FactoryAnnotatedClass item) throws ProcessingException {
-        final TypeElement classElement = item.getAnnotatedClassElement();
+        final TypeElement classElement = item.getTypeElement();
         final String qualifiedFactoryGroupName = item.getQualifiedFactoryGroupName();
         checkIfClassElementIsPublic(classElement);
         checkIfClassElementIsNotAbstract(classElement);
@@ -157,5 +171,16 @@ public final class FactoryProcessor extends AbstractProcessor {
                     "The class %s must provide an public empty default constructor",
                     classElement.getQualifiedName().toString());
         }
+    }
+
+    private void registerAnnotatedClass(FactoryAnnotatedClass annotatedClass) throws ProcessingException {
+        final String qualifiedFactoryGroupName = annotatedClass.getQualifiedFactoryGroupName();
+        FactoryGroupedClasses factoryGroupedClasses =
+                factoryGroupedClassesMap.get(qualifiedFactoryGroupName);
+        if (factoryGroupedClasses == null) {
+            factoryGroupedClasses = new FactoryGroupedClasses(qualifiedFactoryGroupName);
+            factoryGroupedClassesMap.put(qualifiedFactoryGroupName, factoryGroupedClasses);
+        }
+        factoryGroupedClasses.add(annotatedClass);
     }
 }
