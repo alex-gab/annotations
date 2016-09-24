@@ -15,6 +15,7 @@
     <modules>
         <module>factoryannotation</module>
         <module>factoryprocessor</module>
+        <module>factoryusage</module>
     </modules>
 
 

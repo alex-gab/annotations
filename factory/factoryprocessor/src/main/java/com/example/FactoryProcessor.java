@@ -60,11 +60,12 @@ public final class FactoryProcessor extends AbstractProcessor {
 
                 registerAnnotatedClass(annotatedClass);
 
-                for (FactoryGroupedClasses groupedClasses : factoryGroupedClassesMap.values()) {
-                    groupedClasses.generateCode(elementUtils, filer);
-                }
-                factoryGroupedClassesMap.clear();
             }
+
+            for (FactoryGroupedClasses groupedClasses : factoryGroupedClassesMap.values()) {
+                groupedClasses.generateCode(elementUtils, filer);
+            }
+            factoryGroupedClassesMap.clear();
         } catch (ProcessingException e) {
             error(e.getElement(), e.getMessage());
         } catch (IOException e) {
@@ -105,9 +106,9 @@ public final class FactoryProcessor extends AbstractProcessor {
     }
 
     private void checkIfClassElementIsNotAbstract(TypeElement classElement) throws ProcessingException {
-        if (!classElement.getModifiers().contains(Modifier.ABSTRACT)) {
+        if (classElement.getModifiers().contains(Modifier.ABSTRACT)) {
             throw new ProcessingException(classElement,
-                    "The class %s is abstract. You can't annotate abstract classes with @%",
+                    "The class %s is abstract. You can't annotate abstract classes with %s",
                     classElement.getQualifiedName().toString(),
                     Factory.class.getSimpleName());
         }

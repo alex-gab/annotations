@@ -68,6 +68,7 @@ public final class FactoryGroupedClasses {
         methodBuilder.addStatement("throw new IllegalArgumentException($S + id)", "Unknown id = ");
 
         final TypeSpec typeSpec = TypeSpec.classBuilder(factoryClassName).
+                addModifiers(Modifier.PUBLIC).
                 addMethod(methodBuilder.build()).
                 build();
         JavaFile.builder(packageName, typeSpec).build().writeTo(filer);
