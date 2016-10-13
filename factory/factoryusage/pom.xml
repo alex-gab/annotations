@@ -11,6 +11,12 @@
 
     <artifactId>factoryusage</artifactId>
 
+    <properties>
+        <java.version>1.8</java.version>
+        <maven.compiler.verbose>true</maven.compiler.verbose>
+    </properties>
+
+
     <dependencies>
         <dependency>
             <groupId>com.example</groupId>
